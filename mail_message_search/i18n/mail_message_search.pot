@@ -29,6 +29,8 @@ msgid "ID"
 msgstr ""
 
 #. module: mail_message_search
+#. odoo-python
+#: code:addons/mail_message_search/models/mail_thread.py:0
 #: model:ir.model.fields,field_description:mail_message_search.field_account_account__message_search
 #: model:ir.model.fields,field_description:mail_message_search.field_account_analytic_account__message_search
 #: model:ir.model.fields,field_description:mail_message_search.field_account_bank_statement_line__message_search
@@ -40,6 +42,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:mail_message_search.field_account_tax__message_search
 #: model:ir.model.fields,field_description:mail_message_search.field_calendar_event__message_search
 #: model:ir.model.fields,field_description:mail_message_search.field_discuss_channel__message_search
+#: model:ir.model.fields,field_description:mail_message_search.field_hr_department__message_search
+#: model:ir.model.fields,field_description:mail_message_search.field_hr_employee__message_search
+#: model:ir.model.fields,field_description:mail_message_search.field_hr_job__message_search
+#: model:ir.model.fields,field_description:mail_message_search.field_hr_leave__message_search
+#: model:ir.model.fields,field_description:mail_message_search.field_hr_leave_allocation__message_search
+#: model:ir.model.fields,field_description:mail_message_search.field_hr_version__message_search
 #: model:ir.model.fields,field_description:mail_message_search.field_ir_actions_server__message_search
 #: model:ir.model.fields,field_description:mail_message_search.field_ir_cron__message_search
 #: model:ir.model.fields,field_description:mail_message_search.field_mail_blacklist__message_search
@@ -47,9 +55,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:mail_message_search.field_mail_thread_blacklist__message_search
 #: model:ir.model.fields,field_description:mail_message_search.field_mail_thread_cc__message_search
 #: model:ir.model.fields,field_description:mail_message_search.field_mail_thread_main_attachment__message_search
+#: model:ir.model.fields,field_description:mail_message_search.field_mail_thread_phone__message_search
 #: model:ir.model.fields,field_description:mail_message_search.field_mail_tracking_duration_mixin__message_search
 #: model:ir.model.fields,field_description:mail_message_search.field_mailing_contact__message_search
 #: model:ir.model.fields,field_description:mail_message_search.field_mailing_mailing__message_search
+#: model:ir.model.fields,field_description:mail_message_search.field_phone_blacklist__message_search
 #: model:ir.model.fields,field_description:mail_message_search.field_product_category__message_search
 #: model:ir.model.fields,field_description:mail_message_search.field_product_pricelist__message_search
 #: model:ir.model.fields,field_description:mail_message_search.field_product_product__message_search
@@ -73,6 +83,12 @@ msgstr ""
 #: model:ir.model.fields,help:mail_message_search.field_account_tax__message_search
 #: model:ir.model.fields,help:mail_message_search.field_calendar_event__message_search
 #: model:ir.model.fields,help:mail_message_search.field_discuss_channel__message_search
+#: model:ir.model.fields,help:mail_message_search.field_hr_department__message_search
+#: model:ir.model.fields,help:mail_message_search.field_hr_employee__message_search
+#: model:ir.model.fields,help:mail_message_search.field_hr_job__message_search
+#: model:ir.model.fields,help:mail_message_search.field_hr_leave__message_search
+#: model:ir.model.fields,help:mail_message_search.field_hr_leave_allocation__message_search
+#: model:ir.model.fields,help:mail_message_search.field_hr_version__message_search
 #: model:ir.model.fields,help:mail_message_search.field_ir_actions_server__message_search
 #: model:ir.model.fields,help:mail_message_search.field_ir_cron__message_search
 #: model:ir.model.fields,help:mail_message_search.field_mail_blacklist__message_search
@@ -80,9 +96,11 @@ msgstr ""
 #: model:ir.model.fields,help:mail_message_search.field_mail_thread_blacklist__message_search
 #: model:ir.model.fields,help:mail_message_search.field_mail_thread_cc__message_search
 #: model:ir.model.fields,help:mail_message_search.field_mail_thread_main_attachment__message_search
+#: model:ir.model.fields,help:mail_message_search.field_mail_thread_phone__message_search
 #: model:ir.model.fields,help:mail_message_search.field_mail_tracking_duration_mixin__message_search
 #: model:ir.model.fields,help:mail_message_search.field_mailing_contact__message_search
 #: model:ir.model.fields,help:mail_message_search.field_mailing_mailing__message_search
+#: model:ir.model.fields,help:mail_message_search.field_phone_blacklist__message_search
 #: model:ir.model.fields,help:mail_message_search.field_product_category__message_search
 #: model:ir.model.fields,help:mail_message_search.field_product_pricelist__message_search
 #: model:ir.model.fields,help:mail_message_search.field_product_product__message_search

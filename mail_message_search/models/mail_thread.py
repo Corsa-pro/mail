@@ -52,7 +52,7 @@ class MailThread(models.AbstractModel):
         Override to add message_search field in all the objects
         that inherits mail.thread
         """
-        res = super().get_view(view_id=view_id, view_type=view_type, options=options)
+        res = super().get_view(view_id=view_id, view_type=view_type, **options)
         if (
             view_type == "search"
             and self._fields.get("message_search")
@@ -61,7 +61,10 @@ class MailThread(models.AbstractModel):
             doc = etree.XML(res["arch"])
             for node in doc.xpath("/search/field[last()]"):
                 # Add message_search in search view
-                elem = etree.Element("field", {"name": "message_search"})
+                elem = etree.Element(
+                    "field",
+                    {"name": "message_search", "string": self.env._("Message Search")},
+                )
                 node.addnext(elem)
                 res["arch"] = etree.tostring(doc, encoding="unicode")
         return res

@@ -53,6 +53,13 @@ class TestMailTracking(TransactionCase, MockSmtplibCase):
         self.recipient = self.env["res.partner"].create(
             {"name": "Test recipient", "email": "recipient@example.com"}
         )
+        self.recipient_1 = self.env["res.partner"].create(
+            {"name": "Test recipient 1", "email": "recipient1@example.com"}
+        )
+        self.recipient_2 = self.env["res.partner"].create(
+            {"name": "Test recipient 2", "email": "recipient2@example.com"}
+        )
+        self.recipients = self.recipient + self.recipient_1 + self.recipient_2
         self.last_request = None
         if self.patch_http_request:
             self.last_request = http.request
@@ -811,6 +818,54 @@ class TestMailTracking(TransactionCase, MockSmtplibCase):
         self.assertEqual(orig_score, self.recipient.email_score)
         self.assertEqual(orig_count, self.recipient.tracking_emails_count)
 
+    def test_search_on_email_score(self):
+        recipients_domain = [("id", "in", self.recipients.ids)]
+        mail, tracking = self.mail_send(self.recipient.email)
+        tracking.event_create("open", {})
+        mail, tracking = self.mail_send(self.recipient.email)
+        tracking.event_create("open", {})
+        mail, tracking = self.mail_send(self.recipient_1.email)
+        tracking.event_create("reject", {})
+        # Ensure the email_score is correctly computed for the 3 partners of the test
+        self.assertEqual(60.0, self.recipient.email_score)
+        self.assertEqual(25.0, self.recipient_1.email_score)
+        self.assertEqual(50.0, self.recipient_2.email_score)
+        # Search for email_score > 50
+        result = self.env["res.partner"].search(
+            recipients_domain + [("email_score", ">", 50)]
+        )
+        self.assertEqual(result, self.recipient)
+        # Search for email_score < 30
+        result = self.env["res.partner"].search(
+            recipients_domain + [("email_score", "<", 30)]
+        )
+        self.assertEqual(result, self.recipient_1)
+        # Search for email_score = 50
+        result = self.env["res.partner"].search(
+            recipients_domain + [("email_score", "=", 50)]
+        )
+        self.assertEqual(result, self.recipient_2)
+        # Search for email_score >= 50
+        result = self.env["res.partner"].search(
+            recipients_domain + [("email_score", ">=", 50)]
+        )
+        self.assertEqual(result, self.recipient + self.recipient_2)
+        # Search for email_score <= 50
+        result = self.env["res.partner"].search(
+            recipients_domain + [("email_score", "<=", 50)]
+        )
+        self.assertEqual(result, self.recipient_1 + self.recipient_2)
+        # Search for email_score != 50
+        result = self.env["res.partner"].search(
+            recipients_domain + [("email_score", "!=", 50)]
+        )
+        self.assertEqual(result, self.recipient + self.recipient_1)
+        # Search for email_score between 30 and 65
+        result = self.env["res.partner"].search(
+            recipients_domain + [("email_score", ">", 30), ("email_score", "<", 65)]
+        )
+        self.assertEqual(result, self.recipient + self.recipient_2)
+
     def test_process_hard_bounce(self):
         mail, tracking = self.mail_send(self.recipient.email)
         tracking.event_create("hard_bounce", {})
@@ -1034,6 +1089,51 @@ class TestMailTracking(TransactionCase, MockSmtplibCase):
                 ]
             )
         )
+
+    def test_search_through_message_skips_tracking_access(self):
+        """Searching through ``mail_tracking_ids`` skips the tracking access rules"""
+        user_employee = mail_new_test_user(
+            self.env, groups="base.group_user", login="employee_bypass"
+        )
+        message = self.env["mail.message"].create(
+            {
+                "author_id": user_employee.partner_id.id,
+                "message_type": "comment",
+                "model": "res.partner",
+                "res_id": user_employee.partner_id.id,
+                "body": "<p>Failed message</p>",
+                "mail_tracking_needs_action": True,
+            }
+        )
+        tracking = self.env["mail.tracking.email"].create(
+            {"mail_message_id": message.id, "state": "error"}
+        )
+        MailTrackingEmail = type(self.env["mail.tracking.email"])
+        with patch.object(
+            MailTrackingEmail,
+            "_get_allowed_ids",
+            side_effect=AssertionError("tracking access rules evaluated"),
+        ):
+            failed_messages = (
+                self.env["mail.message"]
+                .with_user(user_employee)
+                .search([("is_failed_message", "=", True)])
+            )
+        self.assertEqual(failed_messages, message)
+        # A direct search of trackings still applies their access rules
+        with patch.object(
+            MailTrackingEmail,
+            "_get_allowed_ids",
+            autospec=True,
+            side_effect=MailTrackingEmail._get_allowed_ids,
+        ) as mock_allowed:
+            trackings = (
+                self.env["mail.tracking.email"]
+                .with_user(user_employee)
+                .search([("id", "=", tracking.id)])
+            )
+        self.assertEqual(trackings, tracking)
+        mock_allowed.assert_called_once()
 
     def test_ir_mail_server_internal_helpers(self):
         mail_server = self.env["ir.mail_server"].create(
